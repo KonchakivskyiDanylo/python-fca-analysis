@@ -83,6 +83,8 @@ def process_dataset_for_fca(df: pd.DataFrame,
         (binary representation) suitable for FCA.
     :rtype: pd.DataFrame
     """
+    if df.empty:
+        return df
     if drop_columns:
         df = df.drop(columns=drop_columns, errors='ignore')
 
