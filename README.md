@@ -1,20 +1,22 @@
-# FCA – Formal Concept Analysis
+# Formal Concept Analysis (FCA)
 
-This repository contains tools for performing Formal Concept Analysis on tabular datasets.
+This project explores Formal Concept Analysis using a dataset in Jupyter Notebook. The goal is to extract formal concepts and visualize concept lattices.
 
-## Features
-- Data preprocessing and booleanization
-- Concept lattice generation
-- Visualization of the concept hierarchy
+## Project Structure
+- `notebooks/` – Jupyter notebooks with all analysis and visualizations
+- `data/` – Input datasets
+- `src/` – Optional Python modules with helper functions
 
-## Usage
-1. Place your dataset in `data/`.
-2. Run `src/preprocess.py` to prepare data.
-3. Run `src/concepts.py` to generate concepts.
-4. Use `src/lattice.py` to visualize the concept lattice.
+## How to Run
+1. Open `notebooks/fca_analysis.ipynb` in Jupyter.
+2. Install dependencies from `requirements.txt`.
+3. Follow the notebook cells to analyze the dataset and generate the lattice.
 
 ## Requirements
-See `requirements.txt` for Python dependencies.
+- Python 3.8+
+- pandas
+- matplotlib
+- concepts (https://pypi.org/project/concepts/)
 
 ## License
-MIT License.
+MIT License
