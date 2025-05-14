@@ -1,4 +1,6 @@
 name: Run Pytest
+run: |
+  PYTHONPATH=src pytest tests/ --maxfail=1 --disable-warnings --tb=short
 
 on:
   push:
