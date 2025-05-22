@@ -15,7 +15,6 @@
 - [Use Cases](#use-cases)
 - [Contributing](#contributing)
 - [License](#license)
-- [Acknowledgements](#acknowledgements)
 
 ## About the Project
 
@@ -41,10 +40,9 @@ between objects (e.g., survey respondents) and their attributes (e.g., responses
 
 ### Learn More:
 
-- [Formal Concept Analysis Homepage](https://www.upriss.org.uk/fca/fca.html)
+- [Wikipedia](https://en.wikipedia.org/wiki/Formal_concept_analysis)
 - [Introduction to FCA (Ganter & Wille)](https://link.springer.com/book/10.1007/978-3-642-59830-2)
-- [FCA Research Community](https://www.fcahome.org.uk/)
-- [Concept Analysis Tutorial](https://www.semanticscholar.org/paper/Formal-concept-analysis%3A-mathematical-foundations-Ganter-Wille/2b2b0b5c6c5f0e6a7c4c8d9c5f6a7b8c9d0e1f2g3)
+- [YouTube](https://www.youtube.com/watch?v=fJu_bV9MKfM&list=PLISEtDmihMo2wvgHrsdQhV6AeUsqu-Cum&index=3)
 
 ## Getting Started
 
@@ -91,7 +89,6 @@ Simply replace the data loading step with your preferred format and run the anal
 | **fcapy**          | ✅ Full   | ❌ No         | ✅ Yes     | ✅ Yes   | ⭐⭐⭐⭐⭐       | ⭐⭐⭐⭐        | ⭐⭐⭐⭐⭐         |
 | **concepts**       | ✅ Basic  | ✅ Limited    | ❌ No      | ❌ No    | ⭐⭐⭐         | ⭐⭐          | ⭐⭐⭐⭐          |
 | **fca-algorithms** | ✅ Full   | ❌ No         | ❌ No      | ❌ No    | ⭐⭐⭐         | ⭐⭐⭐⭐        | ⭐⭐            |
-| **pyfca**          | ✅ Basic  | ❌ No         | ❌ No      | ❌ No    | ⭐⭐          | ⭐⭐          | ⭐             |
 
 ### Key Features Comparison:
 
