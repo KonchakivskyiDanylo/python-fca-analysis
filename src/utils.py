@@ -119,3 +119,70 @@ def create_context_from_dataframe(df):
     relation = df.values.tolist()
 
     return objects, attributes, relation
+
+
+def show_concepts(concepts, min_support: float, min_size_intent: int, num_of_rows: int) -> None:
+    """
+    Filters and displays the given concepts based on minimum support and
+    minimum size of intent.
+
+    The function iterates over a list of concepts, represented as objects
+    convertible to tuples. Each concept consists of a pair where the first
+    element (intent) contains a set of items, and the second element
+    (extent) contains associated related items. The function filters
+    concepts based on a minimum size for the intent and a minimum support
+    threshold, which is computed based on the size of the extent relative
+    to the total number of rows.
+
+    Filtered concepts are displayed with their intent and calculated
+    support value.
+
+    :param concepts: List of concept objects, each convertible to a tuple
+        where the first element is the extent, and the second is the intent.
+    :param min_support: Float representing the minimum support threshold.
+        A concept's support is calculated as the ratio of its extent size
+        to the total number of rows.
+    :param min_size_intent: Integer specifying the minimum size of the
+        intent of a concept to be considered valid.
+    :param num_of_rows: Integer representing the total number of rows
+        in the dataset, used for support calculation.
+    :return: None
+    """
+    ind = 0
+    for i in concepts:
+        i = i.to_tuple()
+        if len(i[1]) < min_size_intent:
+            continue
+        supp = support(len(i[0]), num_of_rows)
+        if supp < min_support:
+            continue
+        ind += 1
+        print(f"{ind}: {i[1]} - {supp}")
+
+
+def show_rules(rules) -> None:
+    """
+    Iterates over a list of rules and prints their details including the base items,
+    additional items, support, confidence, and lift values. Each rule defines an
+    association between sets of items, and these details provide insights into the
+    strength and importance of these associations.
+
+    :param rules: A list of association rules where each rule contains statistical
+        details such as support, confidence, and lift, along with the items involved.
+    :type rules: list
+    :return: None
+    """
+    ind = 1
+    for j in rules:
+        stat = j.ordered_statistics[0]
+        if stat.items_base == frozenset():
+            continue
+        base_items = list(stat.items_base)
+        add_items = list(stat.items_add)
+
+        base_str = ", ".join(base_items) if len(base_items) > 1 else base_items[0]
+        add_str = ", ".join(add_items) if len(add_items) > 1 else add_items[0]
+
+        print(f"{ind}: {base_str} -> {add_str}")
+        print(f"Support: {j.support:.4f} - Confidence : {stat.confidence:.4f} - Lift: {stat.lift:.4f}")
+        ind += 1
