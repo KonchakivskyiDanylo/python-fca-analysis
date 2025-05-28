@@ -1,8 +1,9 @@
-from typing import List, Optional
+from typing import List, Optional, Tuple, Dict, Set
 import pandas as pd
 import numpy as np
 from collections import defaultdict
 from fca.api_models import Context
+from collections import defaultdict
 
 
 def booleanize_numeric_columns(df: pd.DataFrame, num_bins: int = 3) -> pd.DataFrame:
@@ -79,26 +80,6 @@ def process_dataset_for_fca(df: pd.DataFrame,
                       boolean_categorical.astype(bool)], axis=1)
 
 
-def support(extent: int, total_objects: int) -> float:
-    """
-    Computes the support value given an extent and the total number of objects.
-
-    Support serves as a measure for the proportion of a specific condition or occurrence
-    relative to a total number of objects. The computed value is obtained by dividing
-    the extent by the total number of objects.
-
-    In cases where the total number of objects is zero, the function will return a
-    support value of 0.0 to avoid division by zero error.
-
-    :param extent: The extent or occurrence count of a specific condition
-    :param total_objects: The total number of objects. Default is 25000
-    :return: The support value as a float, calculated as `extent / total_objects`
-    """
-    if total_objects == 0:
-        return 0.0
-    return extent / total_objects
-
-
 def create_context_from_dataframe(df):
     """
     Creates context data from the given dataframe. The resulting context consists of
@@ -162,76 +143,133 @@ def show_concepts(concepts, min_support: float, min_size_intent: int, num_of_row
         print(f"{ind}: {i[1]} - Support : {supp}")
 
 
+def format_rule(rule, index: int) -> str:
+    """
+    Format a single rule with support, confidence, and lift.
+    """
+    stat = rule.ordered_statistics[0]
+    base_items = list(stat.items_base)
+    add_items = list(stat.items_add)
+
+    base_str = ", ".join(base_items)
+    add_str = ", ".join(add_items)
+
+    return (f"{index}: {base_str} -> {add_str}\n"
+            f"Support: {rule.support:.4f} - Confidence: {stat.confidence:.4f} - Lift: {stat.lift:.4f}")
+
+
+def extract_valid_rules(rules) -> List[Tuple[Tuple[str], Tuple[str]]]:
+    """
+    Extract and return only rules with a non-empty base.
+    """
+    valid_rules = []
+    for rule in rules:
+        stat = rule.ordered_statistics[0]
+        if stat.items_base:
+            base_items = tuple(sorted(stat.items_base))
+            add_items = tuple(sorted(stat.items_add))
+            valid_rules.append((base_items, add_items))
+    return valid_rules
+
+
 def show_rules(rules) -> None:
     """
-    Iterates over a list of rules and prints their details including the base items,
-    additional items, support, confidence, and lift values. Each rule defines an
-    association between sets of items, and these details provide insights into the
-    strength and importance of these associations.
-
-    :param rules: A list of association rules where each rule contains statistical
-        details such as support, confidence, and lift, along with the items involved.
-    :type rules: list
-    :return: None
+    Display all valid rules with their statistics.
     """
-    ind = 1
-    for j in rules:
-        stat = j.ordered_statistics[0]
-        if stat.items_base == frozenset():
-            continue
-        base_items = list(stat.items_base)
-        add_items = list(stat.items_add)
-
-        base_str = ", ".join(base_items) if len(base_items) > 1 else base_items[0]
-        add_str = ", ".join(add_items) if len(add_items) > 1 else add_items[0]
-
-        print(f"{ind}: {base_str} -> {add_str}")
-        print(f"Support: {j.support:.4f} - Confidence : {stat.confidence:.4f} - Lift: {stat.lift:.4f}")
-        ind += 1
+    index = 1
+    for rule in rules:
+        stat = rule.ordered_statistics[0]
+        if stat.items_base:
+            print(format_rule(rule, index))
+            index += 1
 
 
-from collections import defaultdict
-
-
-def get_rules_for_rounds(min_support, min_confidence, show_per_round=True, show_repeated=True):
+def get_rules_for_rounds(min_support: float, min_confidence: float, show_per_round: bool = True,
+                         show_repeated: bool = True) -> None:
     """
-    Analyze association rules across multiple rounds.
+    Analyze association rules for multiple rounds and optionally show repeated rules.
 
     :param min_support: Minimum support threshold
-    :param confidence: Minimum confidence threshold
-    :param show_per_round: Whether to print rules for each individual round
-    :param show_repeated: Whether to show rules that appear in 2 or more rounds
+    :param min_confidence: Minimum confidence threshold
+    :param show_per_round: Whether to display rules per round
+    :param show_repeated: Whether to display rules that appear in multiple rounds
     """
-    rule_occurrences = defaultdict(set)
+    rule_occurrences: Dict[Tuple[Tuple[str], Tuple[str]], Set[int]] = defaultdict(set)
 
-    for i in range(1, 10):
+    for round_num in range(1, 10):
         if show_per_round:
-            print(f"================= Round # {i} =================")
+            print(f"\n================= Round #{round_num} =================")
 
-        df = pd.read_csv(f"../data/essround{i}.csv")
+        df = pd.read_csv(f"../data/essround{round_num}.csv")
         objects, attributes, relation = create_context_from_dataframe(df)
         context = Context(objects, attributes, relation)
+
         rules = list(context.get_association_rules(min_support=min_support, min_confidence=min_confidence))
 
         if show_per_round:
             show_rules(rules)
 
-        for rule in rules:
-            stat = rule.ordered_statistics[0]
-            if stat.items_base == frozenset():
-                continue
-            base_items = tuple(sorted(stat.items_base))
-            add_items = tuple(sorted(stat.items_add))
-            rule_key = (base_items, add_items)
-            rule_occurrences[rule_key].add(i)
+        for base, add in extract_valid_rules(rules):
+            rule_occurrences[(base, add)].add(round_num)
 
     if show_repeated:
         print("\n==== Rules that appear in 2 or more rounds ====\n")
-        ind = 1
+        index = 1
         for (base, add), rounds in rule_occurrences.items():
             if len(rounds) >= 2:
                 base_str = ", ".join(base)
                 add_str = ", ".join(add)
                 rounds_str = ", ".join(map(str, sorted(rounds)))
-                print(f"{ind}: {base_str} -> {add_str} [Rounds: {rounds_str}]")
-                ind += 1
+                print(f"{index}: {base_str} -> {add_str} [Rounds: {rounds_str}]")
+                index += 1
+
+
+def print_top_conf1_rules_by_support(top_n: int = 10) -> None:
+    """
+    For each round, find and print the top N rules with confidence = 1.0,
+    trying different support thresholds (from 0.7 down to 0.1).
+
+    :param top_n: Number of top rules to print per round (default: 10)
+    """
+    support_levels = [x / 100 for x in range(70, 9, -5)]  # 0.7, 0.65, ..., 0.1
+
+    for round_num in range(1, 10):
+        print(f"\n================= Round #{round_num} =================")
+        df = pd.read_csv(f"../data/essround{round_num}.csv")
+        objects, attributes, relation = create_context_from_dataframe(df)
+        context = Context(objects, attributes, relation)
+
+        found = False
+        for sup in support_levels:
+            rules = list(context.get_association_rules(min_support=sup, min_confidence=1.0))
+            valid_rules = [r for r in rules if r.ordered_statistics[0].items_base]
+
+            if len(valid_rules) >= top_n:
+                sorted_rules = sorted(valid_rules, key=lambda r: r.support, reverse=True)[:top_n]
+                for idx, rule in enumerate(sorted_rules, start=1):
+                    print(format_rule(rule, idx))
+                found = True
+                break
+
+        if not found:
+            print(f"⚠️ Not enough rules with confidence = 1 found at any support level to print top {top_n}.")
+
+
+def support(extent: int, total_objects: int) -> float:
+    """
+    Computes the support value given an extent and the total number of objects.
+
+    Support serves as a measure for the proportion of a specific condition or occurrence
+    relative to a total number of objects. The computed value is obtained by dividing
+    the extent by the total number of objects.
+
+    In cases where the total number of objects is zero, the function will return a
+    support value of 0.0 to avoid division by zero error.
+
+    :param extent: The extent or occurrence count of a specific condition
+    :param total_objects: The total number of objects. Default is 25000
+    :return: The support value as a float, calculated as `extent / total_objects`
+    """
+    if total_objects == 0:
+        return 0.0
+    return extent / total_objects
