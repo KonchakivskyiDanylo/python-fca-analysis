@@ -1,6 +1,8 @@
 from typing import List, Optional
 import pandas as pd
 import numpy as np
+from collections import defaultdict
+from fca.api_models import Context
 
 
 def booleanize_numeric_columns(df: pd.DataFrame, num_bins: int = 3) -> pd.DataFrame:
@@ -157,7 +159,7 @@ def show_concepts(concepts, min_support: float, min_size_intent: int, num_of_row
         if supp < min_support:
             continue
         ind += 1
-        print(f"{ind}: {i[1]} - {supp}")
+        print(f"{ind}: {i[1]} - Support : {supp}")
 
 
 def show_rules(rules) -> None:
@@ -186,3 +188,43 @@ def show_rules(rules) -> None:
         print(f"{ind}: {base_str} -> {add_str}")
         print(f"Support: {j.support:.4f} - Confidence : {stat.confidence:.4f} - Lift: {stat.lift:.4f}")
         ind += 1
+
+
+def get_rules_for_rounds(min_support, confidence):
+    for i in range(1, 10):
+        print(f"================= Round # {i} =================")
+        df = pd.read_csv(f"../data/essround{i}.csv")
+        objects, attributes, relation = create_context_from_dataframe(df)
+        context = Context(objects, attributes, relation)
+        rules = list(context.get_association_rules(min_support=min_support, min_confidence=confidence))
+        show_rules(rules)
+
+
+def get_repeated_rules(min_support, confidence):
+    rule_occurrences = defaultdict(set)
+
+    for i in range(1, 10):
+        df = pd.read_csv(f"../data/essround{i}.csv")
+        objects, attributes, relation = create_context_from_dataframe(df)
+        context = Context(objects, attributes, relation)
+        rules = list(context.get_association_rules(min_support=min_support, min_confidence=confidence))
+
+        for j in rules:
+            stat = j.ordered_statistics[0]
+            if stat.items_base == frozenset():
+                continue
+
+            base_items = tuple(sorted(stat.items_base))
+            add_items = tuple(sorted(stat.items_add))
+            rule_key = (base_items, add_items)
+            rule_occurrences[rule_key].add(i)
+
+    print("\n==== Rules that appear in 2 or more rounds ====\n")
+    ind = 1
+    for (base, add), rounds in rule_occurrences.items():
+        if len(rounds) >= 2:
+            base_str = ", ".join(base)
+            add_str = ", ".join(add)
+            rounds_str = ", ".join(map(str, sorted(rounds)))
+            print(f"{ind}: {base_str} -> {add_str} [Rounds: {rounds_str}]")
+            ind += 1
