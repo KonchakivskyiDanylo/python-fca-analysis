@@ -190,41 +190,48 @@ def show_rules(rules) -> None:
         ind += 1
 
 
-def get_rules_for_rounds(min_support, confidence):
-    for i in range(1, 10):
-        print(f"================= Round # {i} =================")
-        df = pd.read_csv(f"../data/essround{i}.csv")
-        objects, attributes, relation = create_context_from_dataframe(df)
-        context = Context(objects, attributes, relation)
-        rules = list(context.get_association_rules(min_support=min_support, min_confidence=confidence))
-        show_rules(rules)
+from collections import defaultdict
 
 
-def get_repeated_rules(min_support, confidence):
+def get_rules_for_rounds(min_support, min_confidence, show_per_round=True, show_repeated=True):
+    """
+    Analyze association rules across multiple rounds.
+
+    :param min_support: Minimum support threshold
+    :param confidence: Minimum confidence threshold
+    :param show_per_round: Whether to print rules for each individual round
+    :param show_repeated: Whether to show rules that appear in 2 or more rounds
+    """
     rule_occurrences = defaultdict(set)
 
     for i in range(1, 10):
+        if show_per_round:
+            print(f"================= Round # {i} =================")
+
         df = pd.read_csv(f"../data/essround{i}.csv")
         objects, attributes, relation = create_context_from_dataframe(df)
         context = Context(objects, attributes, relation)
-        rules = list(context.get_association_rules(min_support=min_support, min_confidence=confidence))
+        rules = list(context.get_association_rules(min_support=min_support, min_confidence=min_confidence))
 
-        for j in rules:
-            stat = j.ordered_statistics[0]
+        if show_per_round:
+            show_rules(rules)
+
+        for rule in rules:
+            stat = rule.ordered_statistics[0]
             if stat.items_base == frozenset():
                 continue
-
             base_items = tuple(sorted(stat.items_base))
             add_items = tuple(sorted(stat.items_add))
             rule_key = (base_items, add_items)
             rule_occurrences[rule_key].add(i)
 
-    print("\n==== Rules that appear in 2 or more rounds ====\n")
-    ind = 1
-    for (base, add), rounds in rule_occurrences.items():
-        if len(rounds) >= 2:
-            base_str = ", ".join(base)
-            add_str = ", ".join(add)
-            rounds_str = ", ".join(map(str, sorted(rounds)))
-            print(f"{ind}: {base_str} -> {add_str} [Rounds: {rounds_str}]")
-            ind += 1
+    if show_repeated:
+        print("\n==== Rules that appear in 2 or more rounds ====\n")
+        ind = 1
+        for (base, add), rounds in rule_occurrences.items():
+            if len(rounds) >= 2:
+                base_str = ", ".join(base)
+                add_str = ", ".join(add)
+                rounds_str = ", ".join(map(str, sorted(rounds)))
+                print(f"{ind}: {base_str} -> {add_str} [Rounds: {rounds_str}]")
+                ind += 1
