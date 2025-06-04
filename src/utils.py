@@ -2,6 +2,7 @@ from typing import List, Optional, Tuple, Dict, Set
 import pandas as pd
 from fca.api_models import Context
 from collections import defaultdict
+import numpy as np
 
 import matplotlib.pyplot as plt
 
