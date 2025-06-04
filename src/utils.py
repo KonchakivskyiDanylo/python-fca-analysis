@@ -1,24 +1,18 @@
 from typing import List, Optional, Tuple, Dict, Set
 import pandas as pd
-import numpy as np
 from fca.api_models import Context
 from collections import defaultdict
+
+import matplotlib.pyplot as plt
 
 
 def load_attribute_mapping() -> dict:
     """
-    Loads attribute mappings from a CSV file, specifically mapping values
-    from the "vert" column to values in the "question" column. This
-    function expects the CSV file to be located at a predefined path
-    and assumes specific column names within the file.
-
-    :return: A dictionary containing the mappings between "vert" and
-        "question" columns in the CSV file.
-    :rtype: dict
+    Attribute mapping for better reading
     """
-    df = pd.read_csv("../data/codebook.csv")
+    df: pd.DataFrame = pd.read_csv("../data/codebook.csv")
 
-    mapping = dict(zip(df["vert"], df["question"]))
+    mapping: dict = dict(zip(df["vert"], df["question"]))
     return mapping
 
 
@@ -393,7 +387,7 @@ def get_rules_for_rounds(min_support: float, min_confidence: float, show_repeate
                 index += 1
 
 
-def print_top_conf1_rules_by_support(top_n: int = 10, use_mapping: bool = False) -> None:
+def print_top_rules_by_support(top_n: int = 10, use_mapping: bool = False) -> None:
     """
     Prints the top N association rules sorted by support with a confidence value of 1.0 for each dataset round.
     The function processes data for rounds from 1 to 9, aiming to extract and format association rules
@@ -529,6 +523,9 @@ def evaluate_itemset_across_rounds(base: Set[str], add: Set[str], use_mapping: b
     print(f"\nEvaluating: {base_str} → {add_str}")
 
     full_itemset = base.union(add)
+    support_values = []
+    valid_rounds = []
+    confidence_values = []
 
     for round_num in range(1, 10):
         df = pd.read_csv(f"../data/essround{round_num}.csv")
@@ -543,6 +540,25 @@ def evaluate_itemset_across_rounds(base: Set[str], add: Set[str], use_mapping: b
 
         print(f"\n================= Round #{round_num} =================")
         print(f"Support: {sup:.4f} - Confidence: {confidence:.4f} - Lift: {lift:.4f}")
+
+        support_values.append(sup)
+        valid_rounds.append(round_num)
+        confidence_values.append(confidence)
+
+    if support_values:
+        plt.figure(figsize=(9, 5))
+        plt.plot(valid_rounds, support_values, marker='o', label='Support', linestyle='-')
+        plt.plot(valid_rounds, confidence_values, marker='s', label='Confidence', linestyle='--')
+        plt.title(f"Support & Confidence across rounds: {base_str} → {add_str}")
+        plt.xlabel("Round")
+        plt.ylabel("Metric Value")
+        plt.ylim(0, 1)
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
+        plt.show()
+    else:
+        print("⚠️ No valid data to plot.")
 
 
 def analyze_rule_evolution(round: int, num_of_rules: int = 10, min_support: float = 0.5,
@@ -575,7 +591,7 @@ def analyze_rule_evolution(round: int, num_of_rules: int = 10, min_support: floa
     objects, attributes, relation = create_context_from_dataframe(df)
     context = Context(objects, attributes, relation)
 
-    print(f"\nAnalyzing top {num_of_rules} rules from Round {round}")
+    print(f"\nAnalyzing top {num_of_rules} rules from Round {round} with minimum support {min_support}")
     rules = list(context.get_association_rules(min_support=min_support, min_confidence=min_confidence))
     filtered_rules = list(extract_valid_rules(rules))
 
