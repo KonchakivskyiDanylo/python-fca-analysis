@@ -385,7 +385,7 @@ def get_rules_for_rounds(min_support: float, min_confidence: float, show_repeate
 
     for round_num in range(1, 10):
         df = pd.read_csv(f"../data/essround{round_num}.csv")
-        df.drop(["clsprty_1_3", "clsprty_2_3", "clsprty_3_3"], axis=1, inplace=True)
+        # df.drop(["clsprty_1_3", "clsprty_2_3", "clsprty_3_3"], axis=1, inplace=True)
         objects, attributes, relation = create_context_from_dataframe(df)
         context = Context(objects, attributes, relation)
 
@@ -437,7 +437,7 @@ def print_top_rules_by_support(top_n: int = 10, use_mapping: bool = False) -> No
     for round_num in range(1, 10):
         print(f"\n================= Round #{round_num} =================")
         df = pd.read_csv(f"../data/essround{round_num}.csv")
-        df.drop(["clsprty_1_3", "clsprty_2_3", "clsprty_3_3"], axis=1, inplace=True)
+        # df.drop(["clsprty_1_3", "clsprty_2_3", "clsprty_3_3"], axis=1, inplace=True)
         objects, attributes, relation = create_context_from_dataframe(df)
         context = Context(objects, attributes, relation)
 
@@ -576,7 +576,7 @@ def evaluate_itemset_across_rounds(base: Set[str], add: Set[str], use_mapping: b
 
     for round_num in range(1, 10):
         df = pd.read_csv(f"../data/essround{round_num}.csv")
-        df.drop(["clsprty_1_3", "clsprty_2_3", "clsprty_3_3"], axis=1, inplace=True)
+        # df.drop(["clsprty_1_3", "clsprty_2_3", "clsprty_3_3"], axis=1, inplace=True)
         if not full_itemset.issubset(df.columns):
             missing = full_itemset - set(df.columns)
             print(f"Round {round_num}: ⚠️ Missing attributes in itemset: {missing}")
@@ -644,7 +644,7 @@ def analyze_rule_evolution(round: int, num_of_rules: int = 10, min_support: floa
     """
 
     df = pd.read_csv(f"../data/essround{round}.csv")
-    df.drop(["clsprty_1_3", "clsprty_2_3", "clsprty_3_3"], axis=1, inplace=True)
+    # df.drop(["clsprty_1_3", "clsprty_2_3", "clsprty_3_3"], axis=1, inplace=True)
     objects, attributes, relation = create_context_from_dataframe(df)
     context = Context(objects, attributes, relation)
 
