@@ -362,7 +362,7 @@ def extract_valid_rules(rules) -> List[Tuple[Tuple[str], Tuple[str]]]:
     return [(base, add) for _, base, add in valid_rules]
 
 
-def get_rules_for_rounds(min_support: float, min_confidence: float, show_repeated: int = 2,
+def get_rules_for_rounds(min_support: float, min_confidence: float, show_repeated: int = 0,
                          use_mapping: bool = False) -> None:
     """
     Analyzes and outputs association rules for rounds of data, calculates occurrences
@@ -398,7 +398,7 @@ def get_rules_for_rounds(min_support: float, min_confidence: float, show_repeate
             rule_occurrences[(base, add)].add(round_num)
 
     if show_repeated:
-        print("\n==== Rules that appear in 2 or more rounds ====\n")
+        print(f"\n==== Rules that appear in {show_repeated} or more rounds ====\n")
         index = 1
         for (base, add), rounds in rule_occurrences.items():
             if len(rounds) >= show_repeated:
@@ -741,3 +741,5 @@ def show_rules_network(rules, show_metrics=False):
     plt.tight_layout()
     plt.show()
 
+# df = pd.read_csv("../data/essround8.csv")
+# get_and_show_rules(df, min_support=0.6, min_confidence=1, use_mapping=False)
