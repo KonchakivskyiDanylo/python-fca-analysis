@@ -3,7 +3,7 @@ import pandas as pd
 from fca.api_models import Context
 from collections import defaultdict
 import numpy as np
-
+import networkx as nx
 import matplotlib.pyplot as plt
 
 
@@ -138,7 +138,7 @@ def support(extent: int, total_objects: int) -> float:
     return extent / total_objects
 
 
-def get_and_show_concepts(df, min_support: float, min_len_of_concept: int, mapping: bool = False):
+def get_and_show_concepts(df, min_support: float, min_len_of_concept: int, use_mapping: bool = False):
     """
     Extracts and displays formal concepts from a given DataFrame using Formal Concept Analysis
     (FCA). The method identifies concepts based on their attributes and their support within
@@ -158,9 +158,9 @@ def get_and_show_concepts(df, min_support: float, min_len_of_concept: int, mappi
         intents of size greater than or equal to this value are retained.
     :type min_len_of_concept: int
 
-    :param mapping: Indicates whether the attribute names in the concept intents should be
+    :param use_mapping: Indicates whether the attribute names in the concept intents should be
         mapped to more interpretable names using a predefined mapping. Defaults to False.
-    :type mapping: bool
+    :type use_mapping: bool
 
     :return: A list of tuples containing the concept intents and their corresponding support
         values. Each tuple consists of a set of attributes (intent) and a support value.
@@ -184,7 +184,7 @@ def get_and_show_concepts(df, min_support: float, min_len_of_concept: int, mappi
 
     concept_list.sort(key=lambda x: x[1], reverse=True)
 
-    if mapping:
+    if use_mapping:
         for idx, (intent, supp) in enumerate(concept_list, start=1):
             formatted_intent = []
             for attr in intent:
@@ -202,7 +202,7 @@ def get_and_show_concepts(df, min_support: float, min_len_of_concept: int, mappi
             print(f"{idx}: {intent} - Support: {supp}")
 
 
-def get_and_show_rules(df, min_support: float, min_confidence: float, mapping: bool = False):
+def get_and_show_rules(df, min_support: float, min_confidence: float, use_mapping: bool = False):
     """
     Extracts and displays association rules from a given dataframe using Formal
     Concept Analysis. The function builds a formal context based on the input
@@ -219,19 +219,20 @@ def get_and_show_rules(df, min_support: float, min_confidence: float, mapping: b
     :param min_confidence: Minimum confidence threshold for the rules. Should
         be a float value between 0 and 1.
     :type min_confidence: float
-    :param mapping: A boolean flag to specify whether to use mapping for
+    :param use_mapping: A boolean flag to specify whether to use mapping for
         displaying the rules. If True, rules are displayed with mapped
         representations, otherwise they are shown in their default form.
-    :type mapping: bool
+    :type use_mapping: bool
     :return: Nothing is returned as the rules are displayed directly.
     """
     objects, attributes, relation = create_context_from_dataframe(df)
     context = Context(objects, attributes, relation)
     rules = list(context.get_association_rules(min_support=min_support, min_confidence=min_confidence))
-    show_rules(rules, use_mapping=mapping)
+    show_rules(rules, use_mapping=use_mapping)
+    # show_rules_network(rules)
 
 
-def format_item(item: str, use_mapping: bool) -> str:
+def format_item(item: str, use_mapping: bool) -> tuple[str, str | None]:
     """
     Formats a string identifier by mapping its prefix to a full attribute name and
     reconstructing it with its bin number and bin total. If the input string does not
@@ -249,8 +250,9 @@ def format_item(item: str, use_mapping: bool) -> str:
     if len(parts) == 3:
         short, bin_num, bin_total = parts
         full = ATTRIBUTE_MAPPING.get(short, short) if use_mapping else short
-        return f"{full}_{bin_num}_from_{bin_total}"
-    return item
+        bin_label = f"bin {bin_num} from {bin_total}"
+        return full, bin_label
+    return item, None
 
 
 def format_rule(rule, index: int, use_mapping: bool = False) -> str:
@@ -273,11 +275,29 @@ def format_rule(rule, index: int, use_mapping: bool = False) -> str:
     base_items = list(stat.items_base)
     add_items = list(stat.items_add)
 
-    base_str = ", ".join(format_item(i, use_mapping) for i in base_items)
-    add_str = ", ".join(format_item(i, use_mapping) for i in add_items)
+    lines = [f"RULE {index}:"]
 
-    return (f"{index}: {base_str} -> {add_str}\n"
-            f"Support: {rule.support:.4f} - Confidence: {stat.confidence:.4f} - Lift: {stat.lift:.4f}")
+    for item in base_items:
+        text, bin_label = format_item(item, use_mapping)
+        if bin_label:
+            lines.append(f"\"{text}\" [{bin_label}]")
+        else:
+            lines.append(f"\"{text}\"")
+
+    lines.append("  ->")
+
+    for item in add_items:
+        text, bin_label = format_item(item, use_mapping)
+        if bin_label:
+            lines.append(f"\"{text}\" [{bin_label}]")
+        else:
+            lines.append(f"\"{text}\"")
+
+    lines.append("")
+    lines.append(f"[Support: {rule.support:.4f}] [Confidence: {stat.confidence:.4f}] [Lift: {stat.lift:.4f}]")
+    lines.append("")
+
+    return "\n".join(lines)
 
 
 def show_rules(rules, use_mapping: bool = False) -> None:
@@ -342,7 +362,7 @@ def extract_valid_rules(rules) -> List[Tuple[Tuple[str], Tuple[str]]]:
     return [(base, add) for _, base, add in valid_rules]
 
 
-def get_rules_for_rounds(min_support: float, min_confidence: float, show_repeated: bool = True,
+def get_rules_for_rounds(min_support: float, min_confidence: float, show_repeated: int = 2,
                          use_mapping: bool = False) -> None:
     """
     Analyzes and outputs association rules for rounds of data, calculates occurrences
@@ -352,9 +372,9 @@ def get_rules_for_rounds(min_support: float, min_confidence: float, show_repeate
     :type min_support: float
     :param min_confidence: Minimum confidence threshold for association rule determination.
     :type min_confidence: float
-    :param show_repeated: Flag indicating whether to display rules that appear in two or
+    :param show_repeated: Flag indicating whether to display rules that appear in give amount or
         more rounds. Defaults to True.
-    :type show_repeated: bool, optional
+    :type show_repeated: in, optional
     :param use_mapping: Flag indicating whether to use a mapping for formatting rule items.
         Defaults to False.
     :type use_mapping: bool, optional
@@ -365,6 +385,7 @@ def get_rules_for_rounds(min_support: float, min_confidence: float, show_repeate
 
     for round_num in range(1, 10):
         df = pd.read_csv(f"../data/essround{round_num}.csv")
+        df.drop(["clsprty_1_3", "clsprty_2_3", "clsprty_3_3"], axis=1, inplace=True)
         objects, attributes, relation = create_context_from_dataframe(df)
         context = Context(objects, attributes, relation)
 
@@ -380,11 +401,23 @@ def get_rules_for_rounds(min_support: float, min_confidence: float, show_repeate
         print("\n==== Rules that appear in 2 or more rounds ====\n")
         index = 1
         for (base, add), rounds in rule_occurrences.items():
-            if len(rounds) >= 2:
-                base_str = ", ".join(format_item(i, use_mapping) for i in base)
-                add_str = ", ".join(format_item(i, use_mapping) for i in add)
+            if len(rounds) >= show_repeated:
+                print(f"RULE {index}:")
+                for i in base:
+                    text, bin_label = format_item(i, use_mapping)
+                    line = f"\"{text}\""
+                    if bin_label:
+                        line += f" [{bin_label}]"
+                    print(line)
+                print("  ->")
+                for i in add:
+                    text, bin_label = format_item(i, use_mapping)
+                    line = f"\"{text}\""
+                    if bin_label:
+                        line += f" [{bin_label}]"
+                    print(line)
                 rounds_str = ", ".join(map(str, sorted(rounds)))
-                print(f"{index}: {base_str} -> {add_str} [Rounds: {rounds_str}]")
+                print(f"[Rounds: {rounds_str}]\n")
                 index += 1
 
 
@@ -404,6 +437,7 @@ def print_top_rules_by_support(top_n: int = 10, use_mapping: bool = False) -> No
     for round_num in range(1, 10):
         print(f"\n================= Round #{round_num} =================")
         df = pd.read_csv(f"../data/essround{round_num}.csv")
+        df.drop(["clsprty_1_3", "clsprty_2_3", "clsprty_3_3"], axis=1, inplace=True)
         objects, attributes, relation = create_context_from_dataframe(df)
         context = Context(objects, attributes, relation)
 
@@ -498,7 +532,8 @@ def get_lift(df, base, add):
     return support_both / (support_base * support_add)
 
 
-def evaluate_itemset_across_rounds(base: Set[str], add: Set[str], use_mapping: bool = False) -> None:
+def evaluate_itemset_across_rounds(base: Set[str], add: Set[str], use_mapping: bool = False,
+                                   plot: bool = False) -> None:
     """
     Evaluates the correlation and significance of relationships between a base set of attributes and an
     additional set of attributes across multiple rounds of a dataset. The analysis includes computing
@@ -519,20 +554,32 @@ def evaluate_itemset_across_rounds(base: Set[str], add: Set[str], use_mapping: b
         print("⚠️ Both base and add must be non-empty sets.")
         return
 
-    base_str = ", ".join(format_item(i, use_mapping) for i in base)
-    add_str = ", ".join(format_item(i, use_mapping) for i in add)
-    print(f"\nEvaluating: {base_str} → {add_str}")
+        # Pretty print the evaluated rule
+    for i in base:
+        text, bin_label = format_item(i, use_mapping)
+        line = f"\"{text}\""
+        if bin_label:
+            line += f" [{bin_label}]"
+        print(line)
+    print("  ->")
+    for i in add:
+        text, bin_label = format_item(i, use_mapping)
+        line = f"\"{text}\""
+        if bin_label:
+            line += f" [{bin_label}]"
+        print(line)
 
     full_itemset = base.union(add)
     support_values = []
-    valid_rounds = []
     confidence_values = []
+    valid_rounds = []
 
     for round_num in range(1, 10):
         df = pd.read_csv(f"../data/essround{round_num}.csv")
-
+        df.drop(["clsprty_1_3", "clsprty_2_3", "clsprty_3_3"], axis=1, inplace=True)
         if not full_itemset.issubset(df.columns):
-            print(f"Round {round_num}: ⚠️ Missing attributes in itemset: {full_itemset - set(df.columns)}")
+            missing = full_itemset - set(df.columns)
+            print(f"Round {round_num}: ⚠️ Missing attributes in itemset: {missing}")
             continue
 
         sup = get_support(df, full_itemset)
@@ -543,27 +590,35 @@ def evaluate_itemset_across_rounds(base: Set[str], add: Set[str], use_mapping: b
         print(f"Support: {sup:.4f} - Confidence: {confidence:.4f} - Lift: {lift:.4f}")
 
         support_values.append(sup)
-        valid_rounds.append(round_num)
         confidence_values.append(confidence)
+        valid_rounds.append(round_num)
 
-    if support_values:
-        plt.figure(figsize=(9, 5))
-        plt.plot(valid_rounds, support_values, marker='o', label='Support', linestyle='-')
-        plt.plot(valid_rounds, confidence_values, marker='s', label='Confidence', linestyle='--')
-        plt.title(f"Support & Confidence across rounds: {base_str} → {add_str}")
-        plt.xlabel("Round")
-        plt.ylabel("Metric Value")
-        plt.ylim(0, 1)
-        plt.legend()
-        plt.grid(True)
-        plt.tight_layout()
-        plt.show()
-    else:
+    if plot and support_values:
+        plot_support_confidence_zoomed(valid_rounds, support_values, confidence_values)
+    elif not support_values:
         print("⚠️ No valid data to plot.")
 
 
+def plot_support_confidence_zoomed(rounds, support_values, confidence_values):
+    min_y = min(min(support_values), min(confidence_values))
+    max_y = max(max(support_values), max(confidence_values))
+    padding = 0.05
+
+    plt.figure(figsize=(9, 5))
+    plt.plot(rounds, support_values, marker='o', label='Support', linestyle='-')
+    plt.plot(rounds, confidence_values, marker='s', label='Confidence', linestyle='--')
+    plt.title("Support & Confidence across Rounds")
+    plt.xlabel("Round")
+    plt.ylabel("Metric Value")
+    plt.ylim(min_y - padding, max_y + padding)
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+
 def analyze_rule_evolution(round: int, num_of_rules: int = 10, min_support: float = 0.5,
-                           min_confidence: float = 1, use_mapping: bool = False) -> None:
+                           min_confidence: float = 1, use_mapping: bool = False, plot: bool = False) -> None:
     """
     Analyzes the evolution of rules in a given dataset round and evaluates selected
     rules across multiple rounds of data. The function reads a dataset corresponding
@@ -589,6 +644,7 @@ def analyze_rule_evolution(round: int, num_of_rules: int = 10, min_support: floa
     """
 
     df = pd.read_csv(f"../data/essround{round}.csv")
+    df.drop(["clsprty_1_3", "clsprty_2_3", "clsprty_3_3"], axis=1, inplace=True)
     objects, attributes, relation = create_context_from_dataframe(df)
     context = Context(objects, attributes, relation)
 
@@ -604,4 +660,84 @@ def analyze_rule_evolution(round: int, num_of_rules: int = 10, min_support: floa
         base_set = set(base)
         add_set = set(add)
         print(f"\n🔍 Rule #{idx}:")
-        evaluate_itemset_across_rounds(base_set, add_set, use_mapping=use_mapping)
+        evaluate_itemset_across_rounds(base_set, add_set, use_mapping=use_mapping, plot=plot)
+
+
+def show_rules_network(rules, show_metrics=False):
+    """
+    Visualizes association rules as a network graph.
+    Each rule is a directed edge from antecedent(s) to consequent(s).
+    Edge thickness represents confidence.
+    If show_metrics=True, edge labels will show confidence and support.
+    """
+    G = nx.DiGraph()
+    edge_labels = {}
+    confidences = []
+    node_roles = {}  # Track which nodes are consequents for coloring
+
+    for rule in rules:
+        stat = rule.ordered_statistics[0]
+        antecedent_items = list(stat.items_base)
+        consequent_items = list(stat.items_add)
+
+        confidence = stat.confidence
+        support = rule.support
+        confidences.append(confidence)
+
+        ant_str = "\n".join(sorted(antecedent_items))
+        con_str = "\n".join(sorted(consequent_items))
+
+        G.add_node(ant_str)
+        G.add_node(con_str)
+        G.add_edge(ant_str, con_str, confidence=confidence, support=support)
+
+        node_roles[ant_str] = node_roles.get(ant_str, "antecedent")
+        node_roles[con_str] = "consequent"
+
+        if show_metrics:
+            edge_labels[(ant_str, con_str)] = f"conf: {confidence:.2f}, sup: {support:.2f}"
+
+    if not confidences:
+        print("⚠️ No rules to display in graph.")
+        return
+
+    # Normalize edge widths by confidence
+    min_conf = min(confidences)
+    max_conf = max(confidences)
+    edge_widths = [
+        2 + 6 * ((G[u][v]['confidence'] - min_conf) / (max_conf - min_conf + 1e-6))
+        for u, v in G.edges()
+    ]
+
+    # Assign colors: orange for consequents, blue for others
+    node_colors = [
+        "orange" if node_roles.get(n) == "consequent" else "skyblue"
+        for n in G.nodes()
+    ]
+
+    pos = nx.spring_layout(G, seed=42)
+    plt.figure(figsize=(12, 8))
+    nx.draw(
+        G, pos,
+        with_labels=True,
+        node_color=node_colors,
+        node_size=2000,
+        font_size=8,
+        arrows=True,
+        width=edge_widths,
+        edge_color='gray',
+        alpha=0.8  # Slight transparency
+    )
+
+    if show_metrics:
+        nx.draw_networkx_edge_labels(
+            G, pos,
+            edge_labels=edge_labels,
+            font_color='red',
+            font_size=7
+        )
+
+    plt.title('Association Rules Network Graph')
+    plt.tight_layout()
+    plt.show()
+
