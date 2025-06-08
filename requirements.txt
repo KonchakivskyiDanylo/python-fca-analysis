@@ -5,3 +5,4 @@ fcapy==0.1.4.5
 fca-algorithms==0.2.4
 pytest==8.3.5
 matplotlib==3.10.3
+networkx==3.5
