@@ -6,6 +6,7 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 import random
+from matplotlib.patches import Patch
 
 columns = ['aesfdrk_1_2', 'aesfdrk_2_2', 'freehms_1_3', 'freehms_2_3', 'freehms_3_3',
            'gincdif_1_3', 'gincdif_2_3', 'gincdif_3_3', 'happy_1_3', 'happy_2_3',
@@ -265,7 +266,8 @@ def get_and_show_rules(df, min_support: float, min_confidence: float, use_mappin
     context = Context(objects, attributes, relation)
     rules = list(context.get_association_rules(min_support=min_support, min_confidence=min_confidence))
     show_rules(rules, use_mapping=use_mapping)
-    # show_rules_network(rules)
+    if plot:
+        show_rules_network(rules)
 
 
 def format_item(item: str, use_mapping: bool) -> tuple[str, str | None]:
@@ -736,6 +738,15 @@ def evaluate_random_rules(amount: int, use_mapping: bool = False, plot: bool = F
         )
 
 
+def get_node_color(roles):
+    if "antecedent" in roles and "consequent" in roles:
+        return "violet"  # mixed role
+    elif "consequent" in roles:
+        return "orange"
+    else:
+        return "skyblue"
+
+
 def show_rules_network(rules, show_metrics=False):
     """
     Displays a directed network graph to visualize association rules. Each node
@@ -760,7 +771,7 @@ def show_rules_network(rules, show_metrics=False):
     G = nx.DiGraph()
     edge_labels = {}
     confidences = []
-    node_roles = {}
+    node_roles = defaultdict(set)
 
     for rule in rules:
         stat = rule.ordered_statistics[0]
@@ -778,8 +789,8 @@ def show_rules_network(rules, show_metrics=False):
         G.add_node(con_str)
         G.add_edge(ant_str, con_str, confidence=confidence, support=support)
 
-        node_roles[ant_str] = node_roles.get(ant_str, "antecedent")
-        node_roles[con_str] = "consequent"
+        node_roles[ant_str].add("antecedent")
+        node_roles[con_str].add("consequent")
 
         if show_metrics:
             edge_labels[(ant_str, con_str)] = f"conf: {confidence:.2f}, sup: {support:.2f}"
@@ -795,10 +806,7 @@ def show_rules_network(rules, show_metrics=False):
         for u, v in G.edges()
     ]
 
-    node_colors = [
-        "orange" if node_roles.get(n) == "consequent" else "skyblue"
-        for n in G.nodes()
-    ]
+    node_colors = [get_node_color(node_roles[n]) for n in G.nodes()]
 
     pos = nx.spring_layout(G, seed=42)
     plt.figure(figsize=(12, 8))
@@ -822,6 +830,11 @@ def show_rules_network(rules, show_metrics=False):
             font_size=7
         )
 
+    legend_elements = [
+        Patch(facecolor='skyblue', edgecolor='black', label='Antecedent only'),
+        Patch(facecolor='orange', edgecolor='black', label='Consequent only'),
+        Patch(facecolor='violet', edgecolor='black', label='Both')
+    ]
+    plt.legend(handles=legend_elements, loc='upper left')
     plt.title('Association Rules Network Graph')
-    plt.tight_layout()
     plt.show()
