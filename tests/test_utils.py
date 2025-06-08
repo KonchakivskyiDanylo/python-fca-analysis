@@ -131,7 +131,7 @@ def test_get_lift_with_positive_lift(binary_dataframe):
     base = {'B'}
     add = {'A'}
     result = get_lift(binary_dataframe, base, add)
-    assert result > 1.0  # Should indicate positive association
+    assert result > 1.0
 
 
 def test_get_support_with_no_matching_rows(binary_dataframe):
