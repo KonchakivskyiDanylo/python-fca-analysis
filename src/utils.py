@@ -6,7 +6,6 @@ import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 import random
-import os
 from matplotlib.patches import Patch
 
 columns = ['aesfdrk_1_2', 'aesfdrk_2_2', 'freehms_1_3', 'freehms_2_3', 'freehms_3_3',
@@ -49,8 +48,7 @@ def load_attribute_mapping() -> dict:
     """
     Attribute mapping for better reading
     """
-    path = os.path.join(os.path.dirname(__file__), "../data/codebook.csv")
-    df = pd.read_csv(path)
+    df: pd.DataFrame = pd.read_csv("../data/codebook.csv")
 
     mapping: dict = dict(zip(df["vert"], df["question"]))
     return mapping
