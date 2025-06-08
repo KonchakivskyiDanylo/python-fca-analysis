@@ -5,6 +5,42 @@ from collections import defaultdict
 import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
+import random
+
+columns = ['aesfdrk_1_2', 'aesfdrk_2_2', 'freehms_1_3', 'freehms_2_3', 'freehms_3_3',
+           'gincdif_1_3', 'gincdif_2_3', 'gincdif_3_3', 'happy_1_3', 'happy_2_3',
+           'happy_3_3', 'health_1_3', 'health_2_3', 'health_3_3', 'imbgeco_1_3',
+           'imbgeco_2_3', 'imbgeco_3_3', 'imdfetn_1_3', 'imdfetn_2_3',
+           'imdfetn_3_3', 'impcntr_1_3', 'impcntr_2_3', 'impcntr_3_3',
+           'impdiff_1_3', 'impdiff_2_3', 'impdiff_3_3', 'impenv_1_3', 'impenv_2_3',
+           'impenv_3_3', 'impfree_1_3', 'impfree_2_3', 'impfree_3_3', 'impfun_1_3',
+           'impfun_2_3', 'impfun_3_3', 'imprich_1_3', 'imprich_2_3', 'imprich_3_3',
+           'impsafe_1_3', 'impsafe_2_3', 'impsafe_3_3', 'imptrad_1_3',
+           'imptrad_2_3', 'imptrad_3_3', 'imsmetn_1_3', 'imsmetn_2_3',
+           'imsmetn_3_3', 'imueclt_1_3', 'imueclt_2_3', 'imueclt_3_3', 'imwbcnt_1_3', 'imwbcnt_2_3',
+           'imwbcnt_3_3', 'ipadvnt_1_3', 'ipadvnt_2_3', 'ipadvnt_3_3',
+           'ipbhprp_1_3', 'ipbhprp_2_3', 'ipbhprp_3_3', 'ipcrtiv_1_3',
+           'ipcrtiv_2_3', 'ipcrtiv_3_3', 'ipeqopt_1_3', 'ipeqopt_2_3',
+           'ipeqopt_3_3', 'ipfrule_1_3', 'ipfrule_2_3', 'ipfrule_3_3',
+           'ipgdtim_1_3', 'ipgdtim_2_3', 'ipgdtim_3_3', 'iphlppl_1_3',
+           'iphlppl_2_3', 'iphlppl_3_3', 'iplylfr_1_3', 'iplylfr_2_3',
+           'iplylfr_3_3', 'ipmodst_1_3', 'ipmodst_2_3', 'ipmodst_3_3',
+           'iprspot_1_3', 'iprspot_2_3', 'iprspot_3_3', 'ipshabt_1_3',
+           'ipshabt_2_3', 'ipshabt_3_3', 'ipstrgv_1_3', 'ipstrgv_2_3',
+           'ipstrgv_3_3', 'ipsuces_1_3', 'ipsuces_2_3', 'ipsuces_3_3',
+           'ipudrst_1_3', 'ipudrst_2_3', 'ipudrst_3_3', 'lrscale_1_3',
+           'lrscale_2_3', 'lrscale_3_3', 'polintr_1_2', 'polintr_2_2',
+           'pplfair_1_3', 'pplfair_2_3', 'pplfair_3_3', 'pplhlp_1_3', 'pplhlp_2_3',
+           'pplhlp_3_3', 'ppltrst_1_3', 'ppltrst_2_3', 'ppltrst_3_3',
+           'prtdgcl_1_3', 'prtdgcl_2_3', 'prtdgcl_3_3', 'rlgdgr_1_3', 'rlgdgr_2_3',
+           'rlgdgr_3_3', 'stfdem_1_3', 'stfdem_2_3', 'stfdem_3_3', 'stfeco_1_3',
+           'stfeco_2_3', 'stfeco_3_3', 'stfedu_1_3', 'stfedu_2_3', 'stfedu_3_3',
+           'stfgov_1_3', 'stfgov_2_3', 'stfgov_3_3', 'stfhlth_1_3', 'stfhlth_2_3',
+           'stfhlth_3_3', 'stflife_1_3', 'stflife_2_3', 'stflife_3_3',
+           'trstep_1_3', 'trstep_2_3', 'trstep_3_3', 'trstlgl_1_3', 'trstlgl_2_3',
+           'trstlgl_3_3', 'trstplc_1_3', 'trstplc_2_3', 'trstplc_3_3',
+           'trstplt_1_3', 'trstplt_2_3', 'trstplt_3_3', 'trstprl_1_3',
+           'trstprl_2_3', 'trstun_1_3', 'trstun_2_3', 'trstun_3_3']
 
 
 def load_attribute_mapping() -> dict:
@@ -202,7 +238,7 @@ def get_and_show_concepts(df, min_support: float, min_len_of_concept: int, use_m
             print(f"{idx}: {intent} - Support: {supp}")
 
 
-def get_and_show_rules(df, min_support: float, min_confidence: float, use_mapping: bool = False):
+def get_and_show_rules(df, min_support: float, min_confidence: float, use_mapping: bool = False, plot: bool = False):
     """
     Extracts and displays association rules from a given dataframe using Formal
     Concept Analysis. The function builds a formal context based on the input
@@ -363,29 +399,32 @@ def extract_valid_rules(rules) -> List[Tuple[Tuple[str], Tuple[str]]]:
 
 
 def get_rules_for_rounds(min_support: float, min_confidence: float, show_repeated: int = 0,
-                         use_mapping: bool = False) -> None:
+                         use_mapping: bool = False, drop_column: bool = False) -> None:
     """
-    Analyzes and outputs association rules for rounds of data, calculates occurrences
-    across rounds, and optionally displays rules that appear in two or more rounds.
+    Extracts and displays association rules for a series of data rounds based on support and
+    confidence thresholds. Optionally handles repeated rules, data mapping, and column
+    manipulation.
 
-    :param min_support: Minimum support threshold for association rule determination.
-    :type min_support: float
-    :param min_confidence: Minimum confidence threshold for association rule determination.
-    :type min_confidence: float
-    :param show_repeated: Flag indicating whether to display rules that appear in give amount or
-        more rounds. Defaults to True.
-    :type show_repeated: in, optional
-    :param use_mapping: Flag indicating whether to use a mapping for formatting rule items.
-        Defaults to False.
-    :type use_mapping: bool, optional
-
-    :return: None
+    :param min_support: Minimum support threshold for association rules
+        in the context generation.
+    :param min_confidence: Minimum confidence threshold for association
+        rules in the context generation.
+    :param show_repeated: Minimum number of rounds a rule should appear
+        in to be displayed. If 0, this option is disabled.
+    :param use_mapping: Whether to utilize mapping functionality when
+        formatting item names in the rules.
+    :param drop_column: Whether to drop specific columns ('clsprty_1_3',
+        'clsprty_2_3', 'clsprty_3_3') from the dataset before
+        processing.
+    :return: Nothing. The function outputs rules and their occurrences,
+        if applicable, to the console.
     """
     rule_occurrences: Dict[Tuple[Tuple[str], Tuple[str]], Set[int]] = defaultdict(set)
 
     for round_num in range(1, 10):
         df = pd.read_csv(f"../data/essround{round_num}.csv")
-        # df.drop(["clsprty_1_3", "clsprty_2_3", "clsprty_3_3"], axis=1, inplace=True)
+        if drop_column:
+            df.drop(["clsprty_1_3", "clsprty_2_3", "clsprty_3_3"], axis=1, inplace=True)
         objects, attributes, relation = create_context_from_dataframe(df)
         context = Context(objects, attributes, relation)
 
@@ -535,26 +574,21 @@ def get_lift(df, base, add):
 def evaluate_itemset_across_rounds(base: Set[str], add: Set[str], use_mapping: bool = False,
                                    plot: bool = False) -> None:
     """
-    Evaluates the correlation and significance of relationships between a base set of attributes and an
-    additional set of attributes across multiple rounds of a dataset. The analysis includes computing
-    support, confidence, and lift measures for each round. The operation prints warnings where
-    necessary, including missing attributes in datasets or invalid input sets, and outputs the computed
-    measures for valid rounds.
+    Evaluates the association rule mining metrics, such as support, confidence, and lift, for a given itemset
+    across multiple data rounds. Also provides options to visualize the metrics and map the formatted output.
 
-    :param base: The base set of attributes.
-    :type base: Set[str]
-    :param add: The set of attributes to evaluate in relation to the base.
-    :type add: Set[str]
-    :param use_mapping: Indicates whether special formatting or mapping should be applied to the item labels.
-                        Defaults to False.
-    :type use_mapping: bool
+    This function compares two sets of items (base and add) and computes the metrics across multiple rounds of
+    data for analysis. It also handles missing attributes and provides warnings if the itemsets are incomplete.
+
+    :param base: A set of strings representing the base itemset used for analysis.
+    :param add: A set of strings representing the additional itemset to be combined with the base.
+    :param use_mapping: A boolean indicating whether to map the items to human-readable text (default is False).
+    :param plot: A boolean indicating whether to plot the support and confidence zoomed plot (default is False).
     :return: None
     """
     if not base or not add:
         print("⚠️ Both base and add must be non-empty sets.")
         return
-
-        # Pretty print the evaluated rule
     for i in base:
         text, bin_label = format_item(i, use_mapping)
         line = f"\"{text}\""
@@ -599,7 +633,21 @@ def evaluate_itemset_across_rounds(base: Set[str], add: Set[str], use_mapping: b
         print("⚠️ No valid data to plot.")
 
 
-def plot_support_confidence_zoomed(rounds, support_values, confidence_values):
+def plot_support_confidence_zoomed(rounds: List, support_values: List, confidence_values: List) -> None:
+    """
+    Plots the support and confidence values over a range of rounds on the same graph. This
+    function creates a visually interpretable line plot to compare the trends in support and
+    confidence metrics with clear labels, legends, and zoomed padding.
+
+    :param rounds: List of round indices representing the x-axis in the plot.
+    :type rounds: list
+    :param support_values: List of support metric values to be plotted on the y-axis.
+    :type support_values: list
+    :param confidence_values: List of confidence metric values to be plotted on the y-axis.
+    :type confidence_values: list
+    :return: The function does not return any value. Instead, it generates and displays a plot.
+    :rtype: None
+    """
     min_y = min(min(support_values), min(confidence_values))
     max_y = max(max(support_values), max(confidence_values))
     padding = 0.05
@@ -617,38 +665,41 @@ def plot_support_confidence_zoomed(rounds, support_values, confidence_values):
     plt.show()
 
 
-def analyze_rule_evolution(round: int, num_of_rules: int = 10, min_support: float = 0.5,
+def analyze_rule_evolution(round_name: int, num_of_rules: int = 10, min_support: float = 0.5,
                            min_confidence: float = 1, use_mapping: bool = False, plot: bool = False) -> None:
     """
-    Analyzes the evolution of rules in a given dataset round and evaluates selected
-    rules across multiple rounds of data. The function reads a dataset corresponding
-    to a specific round, extracts the concept lattice, generates association rules,
-    and evaluates valid rules among the top specified ones with given support and
-    confidence thresholds.
+    Analyzes the evolution of association rules over multiple rounds of data processing.
 
-    :param round: The round number of the dataset to analyze.
-    :type round: int
-    :param num_of_rules: The number of top rules to analyze. Default is 10.
-    :type num_of_rules: int
-    :param min_support: The minimum support threshold for association rule generation.
-        Default is 0.5.
-    :type min_support: float
-    :param min_confidence: The minimum confidence threshold for association rule
-        generation. Default is 1.
-    :type min_confidence: float
-    :param use_mapping: A flag to determine whether to use item/attribute mappings in
-        evaluating rules. Default is False.
-    :type use_mapping: bool
-    :return: None. The function performs analysis and outputs results directly.
-    :rtype: NoneType
+    This function processes a specific round of data to identify and evaluate association
+    rules based on user-defined thresholds for support and confidence. It leverages formal
+    concept analysis to extract rules and evaluates the selected rules across different
+    rounds for their consistency and relevance. The analysis results can optionally include
+    visualizations and mapping adjustments.
+
+    :param round_name: The specific round of data analysis to process. The parameter is
+                  used to locate and retrieve the corresponding dataset file.
+    :type round_name: int
+    :param num_of_rules: Maximum number of association rules to be analyzed from the
+                         top-ranked rules in the selected dataset. Defaults to 10.
+    :param min_support: The minimum support threshold for filtering association rules
+                        during generation. Defaults to 0.5.
+    :param min_confidence: The minimum confidence threshold for filtering association
+                           rules during generation. Defaults to 1.
+    :param use_mapping: A flag indicating whether to apply a mapping transformation
+                        to the rules for evaluation across rounds. Defaults to False.
+    :param plot: A flag indicating whether to generate visualizations of the rule
+                 evaluations across rounds. Defaults to False.
+    :return: This function does not return any value. Outputs and visualizations
+             (if enabled) are provided directly to the console or files.
+    :rtype: None
     """
 
-    df = pd.read_csv(f"../data/essround{round}.csv")
+    df = pd.read_csv(f"../data/essround{round_name}.csv")
     # df.drop(["clsprty_1_3", "clsprty_2_3", "clsprty_3_3"], axis=1, inplace=True)
     objects, attributes, relation = create_context_from_dataframe(df)
     context = Context(objects, attributes, relation)
 
-    print(f"\nAnalyzing top {num_of_rules} rules from Round {round} with minimum support {min_support}")
+    print(f"\nAnalyzing top {num_of_rules} rules from Round {round_name} with minimum support {min_support}")
     rules = list(context.get_association_rules(min_support=min_support, min_confidence=min_confidence))
     filtered_rules = list(extract_valid_rules(rules))
 
@@ -663,17 +714,52 @@ def analyze_rule_evolution(round: int, num_of_rules: int = 10, min_support: floa
         evaluate_itemset_across_rounds(base_set, add_set, use_mapping=use_mapping, plot=plot)
 
 
+def evaluate_random_rules(amount: int, use_mapping: bool = False, plot: bool = False):
+    """
+    Evaluate random rules by sampling itemsets and assessing their performance over multiple
+    rounds. This function chooses random item pairs, evaluates them iteratively, and provides
+    options for including mappings and plotting results.
+
+    :param amount: Number of random itemsets to generate and evaluate.
+    :param use_mapping: Whether to incorporate mappings into the evaluation process.
+    :param plot: Whether to generate and display a plot of the evaluation results.
+    :return: None
+    """
+    for _ in range(amount):
+        base_item, add_item = random.sample(columns, 2)
+        evaluate_itemset_across_rounds(
+            base={base_item},
+            add={add_item},
+            use_mapping=use_mapping,
+            plot=plot
+        )
+
+
 def show_rules_network(rules, show_metrics=False):
     """
-    Visualizes association rules as a network graph.
-    Each rule is a directed edge from antecedent(s) to consequent(s).
-    Edge thickness represents confidence.
-    If show_metrics=True, edge labels will show confidence and support.
+    Displays a directed network graph to visualize association rules. Each node
+    represents the antecedents or consequents of an association rule. Edges
+    connect nodes with metrics like confidence and support, visually representing
+    the relationships in the rules.
+
+    The graph uses dynamic edge widths to reflect the confidence of the rules, and
+    node roles (antecedent or consequent) are color-coded. Optionally, detailed
+    metrics values for each edge can be displayed on the graph.
+
+    :param rules: A list of association rules, where each rule must have
+                  `ordered_statistics` containing antecedents, consequents,
+                  support, and confidence attributes.
+    :type rules: list
+    :param show_metrics: A boolean flag that determines whether the detailed
+                         metrics (support and confidence) are displayed on
+                         the graph edges.
+    :type show_metrics: bool, optional
+    :return: None
     """
     G = nx.DiGraph()
     edge_labels = {}
     confidences = []
-    node_roles = {}  # Track which nodes are consequents for coloring
+    node_roles = {}
 
     for rule in rules:
         stat = rule.ordered_statistics[0]
@@ -701,7 +787,6 @@ def show_rules_network(rules, show_metrics=False):
         print("⚠️ No rules to display in graph.")
         return
 
-    # Normalize edge widths by confidence
     min_conf = min(confidences)
     max_conf = max(confidences)
     edge_widths = [
@@ -709,7 +794,6 @@ def show_rules_network(rules, show_metrics=False):
         for u, v in G.edges()
     ]
 
-    # Assign colors: orange for consequents, blue for others
     node_colors = [
         "orange" if node_roles.get(n) == "consequent" else "skyblue"
         for n in G.nodes()
@@ -726,7 +810,7 @@ def show_rules_network(rules, show_metrics=False):
         arrows=True,
         width=edge_widths,
         edge_color='gray',
-        alpha=0.8  # Slight transparency
+        alpha=0.8
     )
 
     if show_metrics:
@@ -740,6 +824,3 @@ def show_rules_network(rules, show_metrics=False):
     plt.title('Association Rules Network Graph')
     plt.tight_layout()
     plt.show()
-
-# df = pd.read_csv("../data/essround8.csv")
-# get_and_show_rules(df, min_support=0.6, min_confidence=1, use_mapping=False)
