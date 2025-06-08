@@ -725,8 +725,9 @@ def evaluate_random_rules(amount: int, use_mapping: bool = False, plot: bool = F
     :param plot: Whether to generate and display a plot of the evaluation results.
     :return: None
     """
-    for _ in range(amount):
+    for i in range(amount):
         base_item, add_item = random.sample(columns, 2)
+        print(f"\n Rule #{i}:")
         evaluate_itemset_across_rounds(
             base={base_item},
             add={add_item},
