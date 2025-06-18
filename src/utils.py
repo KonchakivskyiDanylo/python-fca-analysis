@@ -7,6 +7,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import random
 from matplotlib.patches import Patch
+from pathlib import Path
 
 columns = ['aesfdrk_1_2', 'aesfdrk_2_2', 'freehms_1_3', 'freehms_2_3', 'freehms_3_3',
            'gincdif_1_3', 'gincdif_2_3', 'gincdif_3_3', 'happy_1_3', 'happy_2_3',
@@ -48,9 +49,11 @@ def load_attribute_mapping() -> dict:
     """
     Attribute mapping for better reading
     """
-    df: pd.DataFrame = pd.read_csv("../data/codebook.csv")
+    root_dir = Path(__file__).resolve().parent.parent
+    data_path = root_dir / "data" / "codebook.csv"
 
-    mapping: dict = dict(zip(df["vert"], df["question"]))
+    df = pd.read_csv(data_path)
+    mapping = dict(zip(df["vert"], df["question"]))
     return mapping
 
 
@@ -267,7 +270,7 @@ def get_and_show_rules(df, min_support: float, min_confidence: float, use_mappin
     rules = list(context.get_association_rules(min_support=min_support, min_confidence=min_confidence))
     show_rules(rules, use_mapping=use_mapping)
     if plot:
-        show_rules_network(rules)
+        show_rules_network(rules, show_metrics=True)
 
 
 def format_item(item: str, use_mapping: bool) -> tuple[str, str | None]:
@@ -664,6 +667,7 @@ def plot_support_confidence_zoomed(rounds: List, support_values: List, confidenc
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
+    plt.savefig("support_confidence.png")
     plt.show()
 
 
@@ -837,4 +841,5 @@ def show_rules_network(rules, show_metrics=False):
     ]
     plt.legend(handles=legend_elements, loc='upper left')
     plt.title('Association Rules Network Graph')
+    plt.savefig("rules_network.png")
     plt.show()
