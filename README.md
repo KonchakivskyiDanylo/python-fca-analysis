@@ -41,7 +41,6 @@ between objects (e.g., survey respondents) and their attributes (e.g., responses
 ### Learn More:
 
 - [Wikipedia](https://en.wikipedia.org/wiki/Formal_concept_analysis)
-- [Introduction to FCA (Ganter & Wille)](https://link.springer.com/book/10.1007/978-3-642-59830-2)
 - [YouTube](https://www.youtube.com/watch?v=fJu_bV9MKfM&list=PLISEtDmihMo2wvgHrsdQhV6AeUsqu-Cum&index=3)
 
 ## Getting Started
