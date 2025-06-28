@@ -9,15 +9,13 @@ multi-year survey datasets to extract patterns, rules, and conceptual structures
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [What is FCA?](#what-is-fca)
-- [Installation](#installation)
-- [Quick Demo](#quick-demo)
+- [🧠 Overview](#-overview)
+- [What is Formal Concept Analysis?](#what-is-formal-concept-analysis)
+- [⚙️ Installation](#-installation)
 - [Library Comparison](#library-comparison)
-- [Use Cases](#use-cases)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [License](#license)
+- [📚 Use Cases](#-use-cases)
+- [🤝 Contributing](#-contributing)
+- [🪪 License](#-license)
 
 ## 🧠 Overview
 
@@ -80,8 +78,6 @@ pip install -r requirements.txt
 * 📊 **Trend comparison** across ESS survey rounds
 * 🛠️ **Survey validation** through rule inconsistency detection
 * 🔄 **Demographic cross-tabulation** with FCA-based association rules
-
-## Contributing
 
 ## 🤝 Contributing
 
