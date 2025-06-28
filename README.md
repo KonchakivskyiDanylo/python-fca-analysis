@@ -3,83 +3,63 @@
 [![Python](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
+This project analyzes and compares Python libraries for Formal Concept Analysis (FCA) with a focus on sociological data.
+It was developed as part of a collaborative research initiative (KSE Graph Theory Lab) and applies FCA to
+multi-year survey datasets to extract patterns, rules, and conceptual structures.
+
 ## Table of Contents
 
-- [About the Project](#about-the-project)
-- [What is Formal Concept Analysis?](#what-is-formal-concept-analysis)
-- [Getting Started](#getting-started)
-    - [Prerequisites](#prerequisites)
-    - [Installation](#installation)
-- [Usage](#usage)
+- [Overview](#overview)
+- [What is FCA?](#what-is-fca)
+- [Installation](#installation)
+- [Quick Demo](#quick-demo)
 - [Library Comparison](#library-comparison)
 - [Use Cases](#use-cases)
+- [Project Structure](#project-structure)
 - [Contributing](#contributing)
 - [License](#license)
 
-## About the Project
+## 🧠 Overview
 
-This project provides a comprehensive analysis of Python libraries for Formal Concept Analysis (FCA) with a focus on
-sociological research applications. Developed as part of the KSE Graph Theory Laboratory, it evaluates various FCA
-implementations and demonstrates their application to survey data analysis.
+Formal Concept Analysis (FCA) helps discover hierarchical relationships between objects and attributes in binary data.
+This project benchmarks three Python FCA libraries (`fcapy`, `concepts`, `fca-algorithms`) using real sociological
+survey datasets (ESS rounds 1–9).
 
-The project aims to bridge mathematical graph theory with practical applications in social sciences, providing
-researchers with tools to discover hidden patterns and relationships in complex survey datasets.
+Goals:
+
+- Benchmark FCA libraries on usability, performance, and feature set.
+- Extract association rules and concept lattices from survey data.
+- Analyze trends across years and track rule stability.
 
 ## What is Formal Concept Analysis?
 
-Formal Concept Analysis (FCA) is a mathematical framework for data analysis and knowledge discovery that reveals
-conceptual structures hidden in data. It transforms datasets into concept lattices, showing hierarchical relationships
-between objects (e.g., survey respondents) and their attributes (e.g., responses).
+Formal Concept Analysis transforms tabular data into **concept lattices**, revealing relationships between attributes.
 
-### Key Concepts:
+### Key Terms:
 
-- **Formal Context**: A binary relation between objects and attributes
-- **Formal Concept**: A pair consisting of objects and their common attributes
-- **Concept Lattice**: A hierarchical structure of all concepts in the data
-- **Implications**: Logical rules that describe dependencies between attributes (if A then B)
+- **Formal Context**: Binary relation between objects and attributes.
+- **Formal Concept**: Pair of objects and their shared attributes.
+- **Lattice**: A hierarchy of formal concepts.
+- **Implications**: "If A then B" logic rules.
 
-### Learn More:
+➡️ Learn more:
 
 - [Wikipedia](https://en.wikipedia.org/wiki/Formal_concept_analysis)
-- [YouTube](https://www.youtube.com/watch?v=fJu_bV9MKfM&list=PLISEtDmihMo2wvgHrsdQhV6AeUsqu-Cum&index=3)
+- [Intro Video](https://www.youtube.com/watch?v=fJu_bV9MKfM)
 
-## Getting Started
+## ⚙️ Installation
 
-### Prerequisites
+```bash
+git clone https://github.com/KonchakivskyiDanylo/python-fca-analysis.git
+cd python-fca-analysis
 
-- Python 3.7 or higher
-- Basic understanding of data analysis concepts
-- Familiarity with survey data formats
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate  # or venv\Scripts\activate on Windows
 
-### Installation
-
-1. Clone the repository
-   ```bash
-   git clone https://github.com/KonchakivskyiDanylo/python-fca-analysis.git
-   cd python-fca-analysis
-   ```
-
-2. Create a virtual environment (recommended)
-   ```bash
-   python -m venv fca_env
-   source fca_env/bin/activate  # On Windows: fca_env\Scripts\activate
-   ```
-
-3. Install dependencies
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-### Working with Your Own Data
-
-The framework supports various data formats:
-
-- CSV files with survey responses
-- Excel spreadsheets
-- JSON datasets
-- Any tabular data that can be converted to binary format
-
-Simply replace the data loading step with your preferred format and run the analysis pipeline.
+# Install dependencies
+pip install -r requirements.txt
+```
 
 ## Library Comparison
 
@@ -89,59 +69,26 @@ Simply replace the data loading step with your preferred format and run the anal
 | **concepts**       | ✅ Basic  | ✅ Limited    | ❌ No      | ❌ No    | ⭐⭐⭐         | ⭐⭐          | ⭐⭐⭐⭐          |
 | **fca-algorithms** | ✅ Full   | ❌ No         | ❌ No      | ❌ No    | ⭐⭐⭐         | ⭐⭐⭐⭐        | ⭐⭐            |
 
-### Key Features Comparison:
+### Our Recommendation:
 
-- **Concepts**: Generation of formal concepts from data
-- **Implications**: Discovery of attribute dependencies and rules
-- **Stability**: Robustness measures for concepts
-- **Support**: Statistical support measures for concepts
-- **Ease of Use**: API design and learning curve
-- **Performance**: Speed and memory efficiency
-- **Documentation**: Quality of docs and examples
+* Use `fcapy` for **concept extraction**.
+* Use `fca-algorithms` for **implication mining**.
 
-## Use Cases
+## 📚 Use Cases
 
-### Sociological Research Applications:
-
-- **Opinion Clustering**: Identify groups of respondents with similar viewpoints
-- **Demographic Analysis**: Explore relationships between demographics and responses
-- **Survey Validation**: Discover inconsistencies or patterns in survey design
-- **Trend Analysis**: Compare survey results across different time periods
-- **Cross-tabulation Enhancement**: Move beyond traditional statistical methods
-
-### Example Research Questions:
-
-- Which demographic factors are most strongly associated with specific attitudes?
-- What are the underlying conceptual structures in public opinion data?
-- How do different survey questions relate to each other conceptually?
-
-## Recommendation
-
-**For sociological research and survey analysis, we recommend using:**
-
-* **`fcapy`** for **concept generation** and **lattice construction**, due to:
-
-    * Multiple supported algorithms for fast and flexible concept computation
-    * Seamless integration with `pandas` and other data science tools
-    * Well-documented interface with practical examples
-    * Solid performance on medium to large datasets
-
-* **`fca-algorithms`** for **implication mining**, as it is the only one among the two that provides built-in support
-  for computing **attribute implications**.
+* 🧠 **Clustering public opinion** by shared attribute sets
+* 📊 **Trend comparison** across ESS survey rounds
+* 🛠️ **Survey validation** through rule inconsistency detection
+* 🔄 **Demographic cross-tabulation** with FCA-based association rules
 
 ## Contributing
 
-Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) for details on our code of conduct
-and the process for submitting pull requests.
+## 🤝 Contributing
 
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+We welcome contributions of all kinds — from documentation fixes to new algorithms.
+Please see [CONTRIBUTING.md](CONTRIBUTING.md) for setup, style guides, and PR process.
 
-## License
+## 🪪 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-For questions, suggestions, or collaboration opportunities, please open an issue or contact the project maintainers.
+This project is licensed under the MIT License.
+See the [LICENSE](LICENSE) file for details.
