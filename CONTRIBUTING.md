@@ -1,48 +1,51 @@
-# Contributing to Python FCA Libraries Analysis
+# 🤝 Contributing to Python FCA Libraries Analysis
 
-Thank you for your interest in contributing to this project! We welcome contributions from everyone, whether you're
-fixing bugs, adding new features, improving documentation, or sharing your experience with FCA libraries.
+Thanks for your interest in improving this project! Whether you're fixing a bug, writing a new feature, improving docs,
+or analyzing rules — we appreciate your time and ideas.
 
-## Table of Contents
+This project is part of a broader research initiative, and your contributions can help both academic and open-source
+communities.
 
-- [Code of Conduct](#code-of-conduct)
-- [How Can I Contribute?](#how-can-i-contribute)
-- [Getting Started](#getting-started)
-- [Pull Request Process](#pull-request-process)
-- [Style Guidelines](#style-guidelines)
-- [Reporting Issues](#reporting-issues)
-- [Suggesting Enhancements](#suggesting-enhancements)
+## 📚 Table of Contents
 
-## Code of Conduct
+- [🧭 Code of Conduct](#-code-of-conduct)
+- [🌱 First-Time Contributors](#-first-time-contributors)
+- [🚀 Ways to Contribute](#-ways-to-contribute)
+- [🛠 Getting Started](#-getting-started)
+- [📥 Pull Request Process](#-pull-request-process)
+- [✨ Code Style Guidelines](#-code-style-guidelines)
+- [🐛 Issue Reporting](#-issue-reporting)
+- [🧠 Evaluation Criteria (for new FCA libraries)](#-evaluation-criteria-for-new-fca-libraries)
 
-This project and everyone participating in it is governed by our Code of Conduct. By participating, you are expected to
-uphold this code. Please report unacceptable behavior to the project maintainers.
+## 🧭 Code of Conduct
+
+We are committed to maintaining a welcoming and inclusive space. By participating, you agree to follow our Code of
+Conduct.
 
 ### Our Standards
 
-- Be respectful and inclusive
-- Focus on constructive feedback
-- Accept responsibility for mistakes
-- Show empathy towards other contributors
-- Prioritize the community's best interests
+- Be respectful and constructive
+- Assume good intentions
+- Keep discussions focused and clear
+- Acknowledge mistakes and learn
+- Encourage collaboration
 
-## How Can I Contribute?
+## 🌱 First-Time Contributors
 
-### Reporting Bugs
+We’re beginner-friendly!  
+If you’re unsure how to start, check out:
 
-Before submitting a bug report:
+-
 
-- Check the existing issues to avoid duplicates
-- Ensure you're using the latest version
-- Test with different FCA libraries if applicable
+Open [issues labeled "good first issue"](https://github.com/KonchakivskyiDanylo/python-fca-analysis/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)
 
-When submitting a bug report, include:
+- Or just open an issue/question — we’re happy to guide you
 
-- Clear description of the problem
-- Steps to reproduce the issue
-- Expected vs. actual behavior
-- System information (OS, Python version, library versions)
-- Code samples or data (when appropriate)
+You can also contribute to:
+
+- Documentation & typos
+- Test coverage
+- Code cleanup & formatting
 
 ### Suggesting Enhancements
 
@@ -75,198 +78,117 @@ Areas where code contributions are welcome:
 - Test coverage improvements
 - Example notebooks and tutorials
 
-## Getting Started
+## 🚀 Ways to Contribute
 
-1. **Fork the repository** on GitHub
-2. **Clone your fork** locally:
+### 🐞 Report Bugs
+
+- Describe what happened and what you expected
+- Share code/data to reproduce
+- Mention OS, Python version, and installed libraries
+
+### 💡 Suggest Enhancements
+
+- What problem would the change solve?
+- How would the feature be used?
+- Is it compatible with current design?
+
+### 🛠 Submit Code
+
+- Add new functionality
+- Optimize performance or usability
+- Extend to other FCA libraries or datasets
+
+## 🛠 Getting Started
+
+1. **Fork and clone the repo**
    ```bash
-   git clone https://github.com/KonchakivskyiDanylo/python-fca-analysis.git
+   git clone https://github.com/your-username/python-fca-analysis.git
    cd python-fca-analysis
    ```
 
-3. **Create a development environment**:
+2. **Set up your environment**
+
    ```bash
-   python -m venv dev_env
-   source dev_env/bin/activate  # On Windows: dev_env\Scripts\activate
+   python -m venv venv
+   source venv/bin/activate  # Windows: venv\Scripts\activate
    pip install -r requirements.txt
-   pip install -r requirements-dev.txt  # Development dependencies
    ```
 
-4. **Create a feature branch**:
+3. **Create a new branch**
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
 
-5. **Make your changes** and commit them:
-   ```bash
-   git add .
-   git commit -m "Add descriptive commit message"
-   ```
+---
 
-6. **Push to your fork** and submit a pull request
+## 📥 Pull Request Process
 
-## Pull Request Process
+Before submitting:
 
-### Before Submitting
+* ✅ Run all tests (`pytest`)
+* ✅ Add tests for new logic
+* ✅ Update docs or `README.md` if needed
 
-- [ ] Run tests: `python -m pytest`
-- [ ] Check code style: `flake8 src/`
-- [ ] Update documentation if needed
-- [ ] Add tests for new functionality
-- [ ] Ensure all checks pass
+Pull request format:
 
-### Pull Request Guidelines
-
-1. **Title**: Use clear, descriptive titles
-    - Good: "Add support for FCA stability metrics"
-    - Bad: "Fix stuff"
-
-2. **Description**: Provide detailed information about:
-    - What changes were made
-    - Why the changes were necessary
-    - How to test the changes
-    - Any breaking changes
-
-3. **Small PRs**: Keep pull requests focused and reasonably sized
-
-4. **Tests**: Include tests for new features or bug fixes
-
-5. **Documentation**: Update relevant documentation
-
-### Review Process
-
-- All PRs require at least one review
-- Maintainers may request changes
-- Once approved, maintainers will merge the PR
-- We aim to review PRs within 48-72 hours
-
-## Style Guidelines
-
-### Python Code Style
-
-We follow [PEP 8](https://peps.python.org/pep-0008/) with these specifics:
-
-- Line length: 88 characters (Black formatter default)
-- Use meaningful variable and function names
-- Include docstrings for public functions and classes
-- Type hints are encouraged
-
-### Code Formatting
-
-We use the following tools:
-
-- **Black** for code formatting
-- **isort** for import sorting
-- **flake8** for linting
-
-Run formatting before committing:
-
-```bash
-black src/
-isort src/
 ```
+feat(utils): add support for visualizing concept lattice
+
+Adds a new function `visualize_lattice()` that plots FCA lattice from the context matrix.
+```
+
+## ✨ Code Style Guidelines
+
+### Python
+
+* Follow [PEP 8](https://peps.python.org/pep-0008/)
 
 ### Commit Messages
 
-Follow conventional commit format:
+Use [Conventional Commits](https://www.conventionalcommits.org/):
 
-```
-type(scope): description
-
-[optional body]
-
-[optional footer(s)]
-```
-
-Types:
-
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation changes
-- `test`: Adding or updating tests
-- `refactor`: Code refactoring
-- `perf`: Performance improvements
+* `feat`: New feature
+* `fix`: Bug fix
+* `docs`: Only docs
+* `test`: Add or fix tests
+* `refactor`: Code change that doesn’t affect behavior
 
 Examples:
 
-- `feat(analysis): add support for concept stability metrics`
-- `fix(fcapy): resolve memory leak in large datasets`
-- `docs(readme): update installation instructions`
+* `fix(rules): correct confidence threshold in graph plot`
+* `docs(readme): add quick demo section`
+* `feat(data): add new preprocessing step for quantile binning`
 
-### Documentation Style
+## 🐛 Issue Reporting
 
-- Use clear, concise language
-- Include code examples where helpful
-- Follow Markdown best practices
-- Use proper grammar and spelling
+### Bug Report
 
-## Reporting Issues
+Please include:
 
-### Bug Reports
+* OS, Python version, relevant package versions
+* Minimal reproducible example
+* Expected vs actual behavior
+* Screenshots or logs if helpful
 
-Use the bug report template and include:
+### Feature Request
 
-- **Environment**: OS, Python version, library versions
-- **Description**: Clear description of the bug
-- **Reproduction**: Minimal code to reproduce the issue
-- **Expected behavior**: What should happen
-- **Actual behavior**: What actually happens
-- **Additional context**: Screenshots, logs, etc.
+Please describe:
 
-### Feature Requests
+* What problem this solves
+* How it could be implemented
+* Any alternatives considered
 
-Use the feature request template and include:
+## 🧠 Evaluation Criteria (for new FCA libraries)
 
-- **Problem**: What problem does this solve?
-- **Solution**: Proposed solution
-- **Alternatives**: Alternative solutions considered
-- **Additional context**: Any other relevant information
+When adding new libraries, please evaluate:
 
-## Development Setup
+* ✅ Concept generation
+* ✅ Implication support
+* ✅ Performance on medium/large datasets
+* ✅ Usability (API, docs, install)
+* ✅ Community activity
 
-### Project Structure
+## 🙌 Thank You!
 
-```
-python-fca-analysis/
-├── src/                 # Source code
-├── tests/              # Test files
-├── docs/               # Documentation
-├── examples/           # Example notebooks
-├── data/               # Sample datasets
-├── requirements.txt    # Production dependencies
-├── requirements-dev.txt # Development dependencies
-└── setup.py           # Package setup
-```
-
-### Running Tests
-
-```bash
-# Run all tests
-python -m pytest
-
-# Run specific test file
-python -m pytest tests/test_library_comparison.py
-
-# Run with coverage
-python -m pytest --cov=src
-```
-
-### Library Evaluation Criteria
-
-When evaluating new FCA libraries, consider:
-
-- **Functionality**: Concepts, implications, stability, support
-- **Performance**: Speed and memory usage
-- **Usability**: API design and documentation
-- **Maintenance**: Activity and community support
-- **Compatibility**: Python version and dependency requirements
-
-## Questions?
-
-If you have questions that aren't covered in this guide:
-
-- Check existing issues and discussions
-- Open a new issue with the "question" label
-- Contact the maintainers directly
-
-Thank you for contributing to Python FCA Libraries Analysis!
+Whether it's your first contribution or you’re a regular — thank you for helping make this project better for everyone.
